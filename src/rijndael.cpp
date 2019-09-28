@@ -614,8 +614,7 @@ inline void xKeyAddition(uint32_t res[MAXBC], const uint32_t a[MAXBC], const uin
 {
     int j;
 
-    for (j = 0; j < BC; j++)
-    {
+    for (j = 0; j < BC; j++) {
         res[j] = a[j] ^ rk[j];
     }
 }
@@ -637,19 +636,15 @@ inline void xShiftSubst(uint32_t res[MAXBC], const uint32_t a[MAXBC], const int 
     uint8_t(*a8)[4] = (uint8_t(*)[4]) a;
     uint8_t(*res8)[4] = (uint8_t(*)[4]) res;
 
-    for (j = 0; j < BC; j++)
-    {
+    for (j = 0; j < BC; j++) {
         res8[j][0] = box[a8[j][0]];
     }
-    for (i = 1; i < 4; i++)
-    {
+    for (i = 1; i < 4; i++) {
         s = shift[i];
-        for (j = 0; j < BC - s; j++)
-        {
+        for (j = 0; j < BC - s; j++) {
             res8[j][i] = box[a8[(j + s)][i]];
         }
-        for (j = BC - s; j < BC; j++)
-        {
+        for (j = BC - s; j < BC; j++) {
             res8[j][i] = box[a8[(j + s) - BC][i]];
         }
     }
@@ -663,8 +658,7 @@ inline void xMixAdd(uint32_t res[MAXBC], const uint32_t a[MAXBC], const uint32_t
     uint32_t b;
     uint8_t(*a8)[4] = (uint8_t(*)[4]) a;
 
-    for (j = 0; j < BC; j++)
-    {
+    for (j = 0; j < BC; j++) {
         b  = M0[0][a8[j][0]].w32;
         b ^= M0[1][a8[j][1]].w32;
         b ^= M0[2][a8[j][2]].w32;
@@ -683,8 +677,7 @@ inline void xInvMixColumn(uint32_t res[MAXBC], const uint32_t a[MAXBC], int BC)
     uint32_t b;
     uint8_t(*a8)[4] = (uint8_t(*)[4]) a;
 
-    for (j = 0; j < BC; j++)
-    {
+    for (j = 0; j < BC; j++) {
         b  = M1[0][a8[j][0]].w32;
         b ^= M1[1][a8[j][1]].w32;
         b ^= M1[2][a8[j][2]].w32;
@@ -702,76 +695,62 @@ inline roundkey xrijndaelKeySched(const uint32_t key[], int keyBits/*=256*/, int
     int i, j, t, rconpointer = 0;
     uint32_t keyBuf[8];
     uint8_t(*k8)[4] = (uint8_t(*)[4]) keyBuf;
-	roundkey rkk;
+    roundkey rkk;
 
-    if (keyBits != 128 && keyBits != 192 && keyBits != 256)
-    {
-		return rkk;
+    if (keyBits != 128 && keyBits != 192 && keyBits != 256) {
+        return rkk;
     }
 
-    if (blockBits != 128 && blockBits != 192 && blockBits != 256)
-    {
-		return rkk;
+    if (blockBits != 128 && blockBits != 192 && blockBits != 256) {
+        return rkk;
     }
 
     KC = keyBits / 32;
     BC = blockBits / 32;
 
-    for (int i = 0; i < KC; ++i)
-    {
+    for (int i = 0; i < KC; ++i) {
         keyBuf[i] = key[i];
     }
-
 
     ROUNDS = KC > BC ? KC + 6 : BC + 6;
 
     t = 0;
     /* copy values into round key array */
-    for (j = 0; (j < KC) && (t < (ROUNDS + 1) * BC); j++, t++)
-    {
+    for (j = 0; (j < KC) && (t < (ROUNDS + 1) * BC); j++, t++) {
         rkk.rk[t] = keyBuf[j];
     }
 
-    while (t < (ROUNDS + 1) * BC)    /* while not enough round key material */
-    {
+    /* while not enough round key material */
+    while (t < (ROUNDS + 1) * BC) {
         /* calculate new values */
-        for (i = 0; i < 4; i++)
-        {
+        for (i = 0; i < 4; i++) {
             k8[0][i] ^= xS[k8[KC - 1][(i + 1) % 4]];
         }
         k8[0][0] ^= xrcon[rconpointer++];
 
-        if (KC != 8)
-        {
-            for (j = 1; j < KC; j++)
-            {
+        if (KC != 8) {
+            for (j = 1; j < KC; j++) {
                 keyBuf[j] ^= keyBuf[j - 1];
             }
         }
-        else
-        {
-            for (j = 1; j < 4; j++)
-            {
+        else {
+            for (j = 1; j < 4; j++) {
                 keyBuf[j] ^= keyBuf[j - 1];
             }
-            for (i = 0; i < 4; i++)
-            {
+            for (i = 0; i < 4; i++) {
                 k8[4][i] ^= xS[k8[3][i]];
             }
-            for (j = 5; j < 8; j++)
-            {
+            for (j = 5; j < 8; j++) {
                 keyBuf[j] ^= keyBuf[j - 1];
             }
         }
         /* copy values into round key array */
-        for (j = 0; (j < KC) && (t < (ROUNDS + 1) * BC); j++, t++)
-        {
+        for (j = 0; (j < KC) && (t < (ROUNDS + 1) * BC); j++, t++) {
             rkk.rk[t] = keyBuf[j];
         }
     }
 
-    for (int i = 0; i < 8; ++i)
-    {
+    for (int i = 0; i < 8; ++i) {
         keyBuf[i] = 0;
     }
 
@@ -779,20 +758,18 @@ inline roundkey xrijndaelKeySched(const uint32_t key[], int keyBits/*=256*/, int
     rkk.BC = BC;
     rkk.KC = KC;
     rkk.ROUNDS = ROUNDS;
-    for (i = 0; i < 2; i++)
-    {
-        for (j = 0; j < 4; j++)
-        {
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < 4; j++) {
             rkk.shift[i][j] = xshifts[(BC - 4) >> 1][i][j];
         }
     }
 
-	return rkk;
+    return rkk;
 }
 
 roundkey xrijndaelKeySched(const void* key, int keyBits/*=256*/, int blockBits/*=128*/)
 {
-	return xrijndaelKeySched((uint32_t*)key, keyBits, blockBits);
+    return xrijndaelKeySched((uint32_t*)key, keyBits, blockBits);
 }
 
 /* Encryption of one block. */
@@ -808,20 +785,19 @@ void xrijndaelEncrypt(const roundkey& rkk, const void* block)
     const uint32_t *rp = rkk.rk;
 
     /* begin with a key addition */
-	xKeyAddition((uint32_t*)block, (uint32_t*)block, rp, BC);
+    xKeyAddition((uint32_t*)block, (uint32_t*)block, rp, BC);
     rp += BC;
 
     /* ROUNDS-1 ordinary rounds */
-    for (r = 1; r < ROUNDS; r++)
-    {
-		xShiftSubst(block2, (uint32_t*)block, shift, BC, xS);
-		xMixAdd((uint32_t*)block, block2, rp, BC);
+    for (r = 1; r < ROUNDS; r++) {
+        xShiftSubst(block2, (uint32_t*)block, shift, BC, xS);
+        xMixAdd((uint32_t*)block, block2, rp, BC);
         rp += BC;
     }
 
     /* Last round is special: there is no xMixColumn */
-	xShiftSubst(block2, (uint32_t*)block, shift, BC, xS);
-	xKeyAddition((uint32_t*)block, block2, rp, BC);
+    xShiftSubst(block2, (uint32_t*)block, shift, BC, xS);
+    xKeyAddition((uint32_t*)block, block2, rp, BC);
 }
 
 void xrijndaelDecrypt(const roundkey& rkk, const void* block)
@@ -847,22 +823,21 @@ void xrijndaelDecrypt(const roundkey& rkk, const void* block)
     *   without xInvMixColumn
     *   with extra xKeyAddition
     */
-	xKeyAddition(block2, (uint32_t*)block, rp, BC);
-	xShiftSubst((uint32_t*)block, block2, shift, BC, xSi);
+    xKeyAddition(block2, (uint32_t*)block, rp, BC);
+    xShiftSubst((uint32_t*)block, block2, shift, BC, xSi);
     rp -= BC;
 
     /* ROUNDS-1 ordinary rounds
     */
-    for (r = ROUNDS - 1; r > 0; r--)
-    {
-		xKeyAddition((uint32_t*)block, (uint32_t*)block, rp, BC);
-		xInvMixColumn(block2, (uint32_t*)block, BC);
-		xShiftSubst((uint32_t*)block, block2, shift, BC, xSi);
+    for (r = ROUNDS - 1; r > 0; --r) {
+        xKeyAddition((uint32_t*)block, (uint32_t*)block, rp, BC);
+        xInvMixColumn(block2, (uint32_t*)block, BC);
+        xShiftSubst((uint32_t*)block, block2, shift, BC, xSi);
         rp -= BC;
     }
 
     /* End with the extra key addition
     */
 
-	xKeyAddition((uint32_t*)block, (uint32_t*)block, rp, BC);
+    xKeyAddition((uint32_t*)block, (uint32_t*)block, rp, BC);
 }
